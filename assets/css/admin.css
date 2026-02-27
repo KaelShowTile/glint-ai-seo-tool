@@ -1,0 +1,156 @@
+.glint-seo-wrap {
+    max-width: 900px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.glint-seo-wrap h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.glint-seo-card {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.glint-seo-card h2 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 18px;
+    font-weight: 600;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 12px;
+}
+
+.glint-checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.glint-checkbox-grid label {
+    display: flex;
+    align-items: center;
+    background: #f8f9fA;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #e2e4e7;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.glint-checkbox-grid label:hover {
+    background: #f0f0f1;
+}
+
+.glint-checkbox-grid input[type="checkbox"] {
+    margin-right: 8px;
+    margin-top: 0;
+}
+
+/* Repeater Styles */
+#glint-repeater-container,
+.glint-repeater-container {
+    margin-bottom: 20px;
+}
+
+.glint-repeater-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    background: #f9f9f9;
+    border: 1px solid #e2e4e7;
+    padding: 16px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.glint-repeater-row:hover {
+    border-color: #007cba;
+    box-shadow: 0 0 0 1px #007cba;
+}
+
+.glint-repeater-row input[type="text"],
+.glint-repeater-row select {
+    flex: 1;
+    min-width: 180px;
+    max-width: 100%;
+}
+
+.glint-repeater-row .glint-remove-rule {
+    color: #d63638;
+    border-color: #d63638;
+    background: transparent;
+}
+
+.glint-repeater-row .glint-remove-rule:hover {
+    background: #d63638;
+    color: #fff;
+    border-color: #d63638;
+}
+
+.glint-hidden {
+    display: none !important;
+}
+
+/* Smooth transitions for inputs */
+input.regular-text {
+    width: 100%;
+    max-width: 400px;
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+
+.button-primary {
+    padding: 8px 24px !important;
+    font-size: 14px !important;
+    height: auto !important;
+    line-height: normal !important;
+}
+
+/* Nested Repeater Blocks */
+.glint-pt-block {
+    background: #fcfcfc;
+    border: 1px solid #e2e4e7;
+    padding: 20px;
+    margin-bottom: 24px;
+    border-radius: 6px;
+}
+
+.glint-pt-block h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 16px;
+    border-bottom: 2px solid #007cba;
+    display: inline-block;
+    padding-bottom: 4px;
+    text-transform: capitalize;
+}
+
+.glint-field-section {
+    margin-bottom: 24px;
+    background: #fff;
+    padding: 16px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
+
+.glint-field-section h4 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: #444;
+}
+
+.glint-field-section:last-child {
+    margin-bottom: 0;
+}
