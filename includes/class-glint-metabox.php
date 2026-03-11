@@ -35,6 +35,7 @@ class Glint_AI_SEO_Metabox
 			</div>
 
 			<div id="glint-ai-seo-feedback" style="display:none; padding: 10px; margin-bottom: 15px; border-radius: 4px; background: #f0f0f1; border-left: 4px solid #00a0d2;"></div>
+            <div id="glint-ai-content-feedback" style="display:none; padding: 10px; margin-bottom: 15px; border-radius: 4px; background: #f0f0f1; border-left: 4px solid #00a0d2;"></div>
 
 			<table class="form-table">
 				<tbody>
@@ -55,10 +56,17 @@ class Glint_AI_SEO_Metabox
 				</tbody>
 			</table>
 
-			<button type="button" class="button button-primary button-large" id="glint-generate-seo-btn">
-				<span class="dashicons dashicons-superhero" style="line-height: normal; margin-top:2px; margin-right: 4px;"></span>
-				Generate SEO Setting
-			</button>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button type="button" class="button button-secondary button-large" id="glint-generate-seo-btn">
+                    <span class="dashicons dashicons-superhero" style="line-height: normal; margin-top:2px; margin-right: 4px;"></span>
+                    Generate SEO Data
+                </button>
+
+                <button type="button" class="button button-primary button-large" id="glint-generate-content-btn">
+                    <span class="dashicons dashicons-edit" style="line-height: normal; margin-top:2px; margin-right: 4px;"></span>
+                    Generate Post Content
+                </button>
+            </div>
 		</div>
 		<?php
     }

@@ -74,6 +74,19 @@ class Glint_AI_SEO_Settings
                 self::update_setting('content_prompts', $sanitized_prompts);
             }
 
+            // Save Content Settings (Source & Slug)
+            if (isset($_POST['glint_content_settings']) && is_array($_POST['glint_content_settings'])) {
+                $content_settings = $_POST['glint_content_settings'];
+                $sanitized_settings = array();
+                foreach ($content_settings as $pt => $data) {
+                    $sanitized_settings[sanitize_key($pt)] = array(
+                        'source' => sanitize_text_field(isset($data['source']) ? $data['source'] : 'default'),
+                        'slug'   => sanitize_text_field(isset($data['slug']) ? $data['slug'] : '')
+                    );
+                }
+                self::update_setting('content_settings', $sanitized_settings);
+            }
+
             // Save Post Types
             if (isset($_POST['glint_post_types']) && is_array($_POST['glint_post_types'])) {
                 $types = array_map('sanitize_text_field', $_POST['glint_post_types']);
@@ -123,6 +136,7 @@ class Glint_AI_SEO_Settings
         $api_key = self::get_setting('api_key', '');
         $saved_post_types = self::get_setting('post_types', array('post', 'page'));
         $content_prompts = self::get_setting('content_prompts', array());
+        $content_settings = self::get_setting('content_settings', array());
 
         $all_post_types = get_post_types(array('public' => true), 'objects');
 
@@ -192,6 +206,23 @@ class Glint_AI_SEO_Settings
 									<div class="glint-repeater-container" data-field="content"></div>
 									<button type="button" class="button button-secondary glint-add-rule-btn" data-field="content">+ Add Content Rule</button>
 								</div>
+
+                                <div class="glint-field-section">
+                                    <h4>Content Source Configuration</h4>
+                                    <?php
+                                    $c_settings = isset($content_settings[$pt]) ? $content_settings[$pt] : array('source' => 'default', 'slug' => '');
+                                    ?>
+                                    <p>
+                                        <label>
+                                            <input type="checkbox" name="glint_content_settings[<?php echo esc_attr($pt); ?>][source]" value="custom" <?php checked($c_settings['source'], 'custom'); ?> />
+                                            Use a Custom Field instead of the default Post Editor?
+                                        </label>
+                                    </p>
+                                    <p>
+                                        <input type="text" name="glint_content_settings[<?php echo esc_attr($pt); ?>][slug]" value="<?php echo esc_attr($c_settings['slug']); ?>" placeholder="Custom Field Slug (e.g. product_description)" class="regular-text" />
+                                        <br><span class="description">Enter the ACF Field Name or Meta Key here.</span>
+                                    </p>
+                                </div>
                                 
                                 <div class="glint-field-section glint-prompt-section">
 									<h4>Post Content Prompt</h4>

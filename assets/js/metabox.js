@@ -1,5 +1,60 @@
 document.addEventListener('DOMContentLoaded', function () {
 
+    // Helper: Get Config for current post type
+    function getContentConfig() {
+        if (typeof glintSeoMetabox === 'undefined') return { source: 'default', slug: '' };
+        const pt = glintSeoMetabox.post_type;
+        if (glintSeoMetabox.content_settings && glintSeoMetabox.content_settings[pt]) {
+            return glintSeoMetabox.content_settings[pt];
+        }
+        return { source: 'default', slug: '' };
+    }
+
+    // Helper: Get Content (Handles Default Editor, Gutenberg, ACF, Custom Fields)
+    function getPostContent() {
+        const config = getContentConfig();
+        
+        if (config.source === 'custom' && config.slug) {
+            // Try ACF Wrapper Detection first (most robust for ACF)
+            const acfWrapper = document.querySelector('.acf-field[data-name="' + config.slug + '"]');
+            if (acfWrapper) {
+                const textarea = acfWrapper.querySelector('textarea');
+                if (textarea) {
+                    // Check if it's a TinyMCE instance
+                    if (typeof tinyMCE !== 'undefined' && textarea.id && tinyMCE.get(textarea.id)) {
+                        return tinyMCE.get(textarea.id).getContent();
+                    }
+                    return textarea.value;
+                }
+            }
+            
+            // Fallback: Standard Input/Textarea by name
+            const el = document.querySelector('[name="' + config.slug + '"]');
+            if (el) return el.value;
+        }
+
+        // Default Handling
+        // Check for Gutenberg
+        if (typeof wp !== 'undefined' && wp.data && wp.data.select('core/editor')) {
+            // Check if Gutenberg is actually active/initialized
+            const editor = wp.data.select('core/editor');
+            if (editor && typeof editor.getEditedPostContent === 'function') {
+                return editor.getEditedPostContent();
+            }
+        }
+        // Classic TinyMCE
+        if (typeof tinyMCE !== 'undefined' && tinyMCE.activeEditor && !tinyMCE.activeEditor.isHidden()) {
+            return tinyMCE.activeEditor.getContent();
+        }
+        // Textarea fallback
+        const contentEle = document.getElementById('content');
+        if (contentEle) {
+            return contentEle.value;
+        }
+
+        return '';
+    }
+
     // --- Generate SEO Title & Description ---
     const seoBtn = document.getElementById('glint-generate-seo-btn');
     if (seoBtn) {
@@ -22,27 +77,11 @@ document.addEventListener('DOMContentLoaded', function () {
             if (typeof glintSeoMetabox === 'undefined') return;
 
             // Try to get dynamic content from editor
-            let content = '';
+            let content = getPostContent();
             const postIdEle = document.getElementById('post_ID');
-            if (!postIdEle) return; // Not on standard edit screen
+            if (!postIdEle) return;
             const postId = postIdEle.value;
-
-            // Check for Gutenberg
-            if (typeof wp !== 'undefined' && wp.data && wp.data.select('core/editor')) {
-                content = wp.data.select('core/editor').getEditedPostContent();
-            }
-            // Fallback or Classic TinyMCE
-            else if (typeof tinyMCE !== 'undefined' && tinyMCE.activeEditor && !tinyMCE.activeEditor.isHidden()) {
-                content = tinyMCE.activeEditor.getContent();
-            }
-            // Textarea fallback
-            else {
-                const contentEle = document.getElementById('content');
-                if (contentEle) {
-                    content = contentEle.value;
-                }
-            }
-
+            
             feedback.style.display = 'block';
             feedback.style.borderLeftColor = '#f56e28'; // Processing orange
             feedback.innerText = 'Generating SEO data with Gemini AI. This may take a few seconds...';
@@ -110,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!postIdEle) return;
             const postId = postIdEle.value;
 
-            const postTitleEle = document.getElementById('title');
+            const postTitleEle = document.getElementById('title') || document.querySelector('.editor-post-title__input');
             const postTitle = postTitleEle ? postTitleEle.value : '';
 
             contentFeedback.style.display = 'block';
@@ -143,22 +182,45 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (res.success && res.data && res.data.content) {
                         const generatedContent = res.data.content;
 
-                        // Check for Gutenberg
-                        if (typeof wp !== 'undefined' && wp.data && wp.data.dispatch('core/editor')) {
-                            // Using resetEditorBlocks is a good way to replace content with raw HTML/Markdown
-                            // It converts the raw string into blocks.
-                            const blocks = wp.blocks.rawHandler({ HTML: generatedContent });
-                            wp.data.dispatch('core/editor').resetEditorBlocks(blocks);
+                        const config = getContentConfig();
+                        let inserted = false;
+
+                        // 1. Try Custom Field Insertion
+                        if (config.source === 'custom' && config.slug) {
+                             const acfWrapper = document.querySelector('.acf-field[data-name="' + config.slug + '"]');
+                             if (acfWrapper) {
+                                 const textarea = acfWrapper.querySelector('textarea');
+                                 if (textarea) {
+                                     if (typeof tinyMCE !== 'undefined' && textarea.id && tinyMCE.get(textarea.id)) {
+                                         tinyMCE.get(textarea.id).setContent(generatedContent);
+                                         inserted = true;
+                                     } else {
+                                         textarea.value = generatedContent;
+                                         inserted = true;
+                                     }
+                                 }
+                             } else {
+                                 // Fallback simple selector
+                                 const el = document.querySelector('[name="' + config.slug + '"]');
+                                 if (el) { el.value = generatedContent; inserted = true; }
+                             }
                         }
-                        // Fallback for Classic TinyMCE
-                        else if (typeof tinyMCE !== 'undefined' && tinyMCE.get('content')) {
-                            tinyMCE.get('content').setContent(generatedContent);
-                        }
-                        // Final fallback for plain textarea
-                        else {
-                            const contentEle = document.getElementById('content');
-                            if (contentEle) {
-                                contentEle.value = generatedContent;
+
+                        // 2. Default Insertion (if not custom or custom failed)
+                        if (!inserted) {
+                             // Gutenberg
+                             if (typeof wp !== 'undefined' && wp.data && wp.data.dispatch('core/editor')) {
+                                const blocks = wp.blocks.rawHandler({ HTML: generatedContent });
+                                wp.data.dispatch('core/editor').resetEditorBlocks(blocks);
+                            }
+                            // Classic TinyMCE
+                            else if (typeof tinyMCE !== 'undefined' && tinyMCE.get('content')) {
+                                tinyMCE.get('content').setContent(generatedContent);
+                            }
+                            // Textarea
+                            else {
+                                const contentEle = document.getElementById('content');
+                                if (contentEle) contentEle.value = generatedContent;
                             }
                         }
 
