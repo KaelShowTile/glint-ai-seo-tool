@@ -45,8 +45,8 @@ class Glint_AI_SEO_Settings
     public function add_plugin_admin_menu()
     {
         add_menu_page(
-            'Glint AI SEO',
-            'Glint AI SEO',
+            'ST AI SEO',
+            'ST AI SEO',
             'manage_options',
             'glint-ai-seo',
             array($this, 'display_plugin_admin_page'),
@@ -62,6 +62,16 @@ class Glint_AI_SEO_Settings
             // Save API Key
             if (isset($_POST['glint_api_key'])) {
                 self::update_setting('api_key', sanitize_text_field($_POST['glint_api_key']));
+            }
+
+            // Save Content Prompts
+            if (isset($_POST['glint_content_prompts']) && is_array($_POST['glint_content_prompts'])) {
+                $prompts = $_POST['glint_content_prompts'];
+                $sanitized_prompts = array();
+                foreach ($prompts as $pt => $prompt) {
+                    $sanitized_prompts[sanitize_key($pt)] = sanitize_textarea_field($prompt);
+                }
+                self::update_setting('content_prompts', $sanitized_prompts);
             }
 
             // Save Post Types
@@ -84,6 +94,7 @@ class Glint_AI_SEO_Settings
                         if (is_array($fields)) {
                             foreach ($fields as $field => $field_rules) {
                                 if (is_array($field_rules)) {
+                                    if (!isset($sanitized_rules[$pt])) $sanitized_rules[$pt] = [];
                                     foreach ($field_rules as $rule) {
                                         $sanitized_rules[$pt][$field][] = array(
                                             'meta_name' => sanitize_text_field(isset($rule['meta_name']) ? $rule['meta_name'] : ''),
@@ -111,6 +122,7 @@ class Glint_AI_SEO_Settings
     {
         $api_key = self::get_setting('api_key', '');
         $saved_post_types = self::get_setting('post_types', array('post', 'page'));
+        $content_prompts = self::get_setting('content_prompts', array());
 
         $all_post_types = get_post_types(array('public' => true), 'objects');
 
@@ -153,7 +165,7 @@ class Glint_AI_SEO_Settings
 				</div>
 
 				<div class="glint-seo-card">
-					<h2>2. Necessary Post Metas for AI Prompt</h2>
+					<h2>2. Post Type Specific Settings</h2>
 					<p class="description">Define which meta fields the AI should read when generating SEO title and description. Configure rules specifically for each post type to ensure maximum relevance.</p>
 					
 					<div id="glint-post-type-tabs">
@@ -161,8 +173,8 @@ class Glint_AI_SEO_Settings
 							<?php $pt_obj = get_post_type_object($pt); ?>
 							<?php if ($pt_obj): ?>
 							<div class="glint-pt-block" data-pt="<?php echo esc_attr($pt); ?>">
-								<h3><?php echo esc_html($pt_obj->label); ?> Metadata</h3>
-								
+								<h3><?php echo esc_html($pt_obj->label); ?> Settings</h3>
+	
 								<div class="glint-field-section">
 									<h4>SEO Title Rules</h4>
 									<div class="glint-repeater-container" data-field="title"></div>
@@ -173,6 +185,22 @@ class Glint_AI_SEO_Settings
 									<h4>SEO Description Rules</h4>
 									<div class="glint-repeater-container" data-field="description"></div>
 									<button type="button" class="button button-secondary glint-add-rule-btn" data-field="description">+ Add Description Rule</button>
+								</div>
+
+								<div class="glint-field-section">
+									<h4>Post Content Rules</h4>
+									<div class="glint-repeater-container" data-field="content"></div>
+									<button type="button" class="button button-secondary glint-add-rule-btn" data-field="content">+ Add Content Rule</button>
+								</div>
+                                
+                                <div class="glint-field-section glint-prompt-section">
+									<h4>Post Content Prompt</h4>
+									<?php
+                                    $default_prompt = "Write a blog post about [post_title]. Use the following metadata for context:\n[metadata]\n\nMake it engaging and informative. The content should be structured with headings and paragraphs.";
+                                    $current_prompt = isset($content_prompts[$pt]) && !empty($content_prompts[$pt]) ? $content_prompts[$pt] : $default_prompt;
+                                    ?>
+									<textarea name="glint_content_prompts[<?php echo esc_attr($pt); ?>]" id="glint_content_prompt_<?php echo esc_attr($pt); ?>" rows="6" class="large-text"><?php echo esc_textarea($current_prompt); ?></textarea>
+									<p class="description">Define the prompt for generating the main post content. Use placeholders like <code>[post_title]</code> and <code>[metadata]</code>.</p>
 								</div>
 							</div>
 							<?php

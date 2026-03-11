@@ -115,8 +115,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             if (Array.isArray(titleRules) && titleRules.length > 0) {
                 titleRules.forEach(rule => renderRow(titleContainer, pt, rule));
-            } else {
-                renderRow(titleContainer, pt);
             }
         }
 
@@ -129,8 +127,18 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             if (Array.isArray(descRules) && descRules.length > 0) {
                 descRules.forEach(rule => renderRow(descContainer, pt, rule));
-            } else {
-                renderRow(descContainer, pt);
+            }
+        }
+
+        // Init Content Rules Container
+        const contentContainer = block.querySelector('.glint-repeater-container[data-field="content"]');
+        if (contentContainer) {
+            let contentRules = [];
+            if (saved_rules && saved_rules[pt] && saved_rules[pt]['content']) {
+                contentRules = saved_rules[pt]['content'];
+            }
+            if (Array.isArray(contentRules) && contentRules.length > 0) {
+                contentRules.forEach(rule => renderRow(contentContainer, pt, rule));
             }
         }
     });
@@ -155,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             document.querySelectorAll('.glint-pt-block').forEach(block => {
                 const pt = block.getAttribute('data-pt');
-                rules[pt] = { title: [], description: [] };
+                rules[pt] = { title: [], description: [], content: [] };
 
                 // Get titles
                 const titleRows = block.querySelectorAll('.glint-repeater-container[data-field="title"] .glint-repeater-row');
@@ -185,6 +193,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     if (name.trim() !== '') {
                         rules[pt].description.push({
+                            meta_name: name,
+                            meta_source: src,
+                            select_meta: src === 'custom' ? '' : sel,
+                            meta_slug: src === 'custom' ? slug : ''
+                        });
+                    }
+                });
+
+                // Get content rules
+                const contentRows = block.querySelectorAll('.glint-repeater-container[data-field="content"] .glint-repeater-row');
+                contentRows.forEach(row => {
+                    const name = row.querySelector('.glint-meta-name').value;
+                    const src = row.querySelector('.glint-meta-source').value;
+                    const sel = row.querySelector('.glint-select-meta').value;
+                    const slug = row.querySelector('.glint-meta-slug').value;
+
+                    if (name.trim() !== '') {
+                        rules[pt].content.push({
                             meta_name: name,
                             meta_source: src,
                             select_meta: src === 'custom' ? '' : sel,

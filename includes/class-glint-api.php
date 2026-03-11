@@ -7,7 +7,7 @@ class Glint_AI_SEO_API
     {
         $api_key = Glint_AI_SEO_Settings::get_setting('api_key', '');
         if (empty($api_key)) {
-            return new WP_Error('no_api_key', 'Gemini API Key is missing. Please configure it in Glint AI SEO Settings.');
+            return new WP_Error('no_api_key', 'Gemini API Key is missing. Please configure it in ST AI SEO Settings.');
         }
 
         // Prepare prompt
@@ -132,6 +132,80 @@ class Glint_AI_SEO_API
                 return $result;
             }
             return new WP_Error('parse_error', 'Failed to parse AI output. Output was: ' . $text);
+        }
+
+        return new WP_Error('no_content', 'API returned no recognizable content structure.');
+    }
+
+    public static function generate_content($post_title, $meta_data, $prompt_template)
+    {
+        $api_key = Glint_AI_SEO_Settings::get_setting('api_key', '');
+        if (empty($api_key)) {
+            return new WP_Error('no_api_key', 'Gemini API Key is missing. Please configure it in ST AI SEO Settings.');
+        }
+
+        if (empty($prompt_template)) {
+            return new WP_Error('no_prompt', 'Content generation prompt is empty. Please configure it in ST AI SEO Settings.');
+        }
+
+        // Prepare metadata string
+        $metadata_string = "";
+        if (!empty($meta_data)) {
+            foreach ($meta_data as $key => $val) {
+                $metadata_string .= sanitize_text_field($key) . ": " . wp_strip_all_tags(is_array($val) ? wp_json_encode($val) : $val) . "\n";
+            }
+        } else {
+            $metadata_string = "No metadata provided.";
+        }
+
+        // Replace placeholders in the prompt template
+        $prompt = str_replace('[post_title]', $post_title, $prompt_template);
+        $prompt = str_replace('[metadata]', $metadata_string, $prompt);
+
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . $api_key;
+
+        $body = array(
+            "contents" => array(
+                array(
+                    "parts" => array(
+                        array("text" => $prompt)
+                    )
+                )
+            ),
+            "generationConfig" => array(
+                "temperature" => 0.8,
+                "maxOutputTokens" => 8192,
+                // "responseMimeType" => "text/plain" // We expect markdown/html back
+            )
+        );
+
+        $request_args = array(
+            'body' => wp_json_encode($body),
+            'headers' => array('Content-Type' => 'application/json'),
+            'timeout' => 120, // Increased timeout for potentially long content generation
+            'data_format' => 'body'
+        );
+
+        $response = wp_remote_post($url, $request_args);
+
+        if (is_wp_error($response)) {
+            return $response;
+        }
+
+        $status = wp_remote_retrieve_response_code($response);
+        $body_resp = wp_remote_retrieve_body($response);
+        $data = json_decode($body_resp, true);
+
+        if ($status !== 200) {
+            $err = isset($data['error']['message']) ? $data['error']['message'] : 'Unknown Gemini API Error';
+            return new WP_Error('api_error', 'API Error: ' . $err);
+        }
+
+        if (isset($data['candidates'][0]['content']['parts'][0]['text'])) {
+            $text = $data['candidates'][0]['content']['parts'][0]['text'];
+            // The response is expected to be markdown or plain text, which can be directly inserted.
+            // No JSON parsing needed here.
+            return $text;
         }
 
         return new WP_Error('no_content', 'API returned no recognizable content structure.');
