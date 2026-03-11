@@ -162,7 +162,7 @@ class Glint_AI_SEO_API
         $prompt = str_replace('[post_title]', $post_title, $prompt_template);
         $prompt = str_replace('[metadata]', $metadata_string, $prompt);
 
-        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . $api_key;
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $api_key;
 
         $body = array(
             "contents" => array(
