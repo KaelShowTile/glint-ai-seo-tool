@@ -9,7 +9,27 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    const { core_metas, acf_metas, woo_metas, saved_rules } = glintSeoData;
+    const { core_metas, acf_metas, woo_metas, taxonomy_sources, saved_rules } = glintSeoData;
+
+    // Helper: check if a source value is a taxonomy
+    function isTaxonomySource(source) {
+        return taxonomy_sources && taxonomy_sources.hasOwnProperty(source);
+    }
+
+    // Build the source <select> options HTML, including dynamic taxonomy entries
+    function getSourceOptionsHtml(selectedSource) {
+        let html = '';
+        html += `<option value="core" ${selectedSource === 'core' ? 'selected' : ''}>WordPress Core</option>`;
+        html += `<option value="acf" ${selectedSource === 'acf' ? 'selected' : ''}>ACF</option>`;
+        html += `<option value="woo" ${selectedSource === 'woo' ? 'selected' : ''}>WooCommerce</option>`;
+        if (taxonomy_sources) {
+            for (const [taxName, taxData] of Object.entries(taxonomy_sources)) {
+                html += `<option value="${taxName}" ${selectedSource === taxName ? 'selected' : ''}>${taxData.label}</option>`;
+            }
+        }
+        html += `<option value="custom" ${selectedSource === 'custom' ? 'selected' : ''}>Custom/Other</option>`;
+        return html;
+    }
 
     // Build the Options HTML string based on source
     function getOptionsForSource(source, pt, selectedValue = '') {
@@ -17,6 +37,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (source === 'core') metas = core_metas;
         if (source === 'acf') metas = acf_metas[pt] || {};
         if (source === 'woo') metas = woo_metas;
+        // Check for taxonomy sources (e.g. category, product_cat, post_tag)
+        if (isTaxonomySource(source)) metas = taxonomy_sources[source].terms;
 
         let optionsHtml = '';
 
@@ -50,10 +72,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <input type="text" class="glint-meta-name" placeholder="Meta Name (e.g. Price)" value="${escapeHtml(meta_name)}" required>
             
             <select class="glint-meta-source">
-                <option value="core" ${meta_source === 'core' ? 'selected' : ''}>WordPress Core</option>
-                <option value="acf" ${meta_source === 'acf' ? 'selected' : ''}>ACF</option>
-                <option value="woo" ${meta_source === 'woo' ? 'selected' : ''}>WooCommerce</option>
-                <option value="custom" ${meta_source === 'custom' ? 'selected' : ''}>Custom/Other</option>
+                ${getSourceOptionsHtml(meta_source)}
             </select>
             
             <select class="glint-select-meta ${meta_source === 'custom' ? 'glint-hidden' : ''}">

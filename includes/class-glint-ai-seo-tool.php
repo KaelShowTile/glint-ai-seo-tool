@@ -56,6 +56,7 @@ class Glint_AI_SEO_Tool
                 'core_metas' => $meta_sources->get_core_metas(),
                 'acf_metas' => $meta_sources->get_acf_metas(),
                 'woo_metas' => $meta_sources->get_woo_metas(),
+                'taxonomy_sources' => $meta_sources->get_taxonomy_sources(),
                 'saved_rules' => Glint_AI_SEO_Settings::get_setting('meta_rules', array())
             ));
         }

@@ -54,8 +54,44 @@ class Glint_AI_SEO_Meta_Sources
             'total_sales' => 'Total Sales'
         );
 
-        // Combine with any extra product attributes if needed, but these standard ones cover 90%
+        // Add product attribute taxonomies (e.g. pa_color, pa_size)
+        if (function_exists('wc_get_attribute_taxonomies')) {
+            $attribute_taxonomies = wc_get_attribute_taxonomies();
+            if ($attribute_taxonomies) {
+                foreach ($attribute_taxonomies as $attribute) {
+                    $taxonomy_name = wc_attribute_taxonomy_name($attribute->attribute_name);
+                    $metas[$taxonomy_name] = 'Attribute: ' . $attribute->attribute_label . ' (' . $taxonomy_name . ')';
+                }
+            }
+        }
+
         return $metas;
+    }
+
+    public function get_taxonomy_sources()
+    {
+        $sources = array();
+        $taxonomies = get_taxonomies(array('public' => true), 'objects');
+        if ($taxonomies) {
+            foreach ($taxonomies as $taxonomy) {
+                $terms = array('0' => '-'); // Root option: get all items
+                $parent_terms = get_terms(array(
+                    'taxonomy' => $taxonomy->name,
+                    'parent' => 0,
+                    'hide_empty' => false,
+                ));
+                if (!is_wp_error($parent_terms) && !empty($parent_terms)) {
+                    foreach ($parent_terms as $term) {
+                        $terms[strval($term->term_id)] = $term->name;
+                    }
+                }
+                $sources[$taxonomy->name] = array(
+                    'label' => $taxonomy->label,
+                    'terms' => $terms,
+                );
+            }
+        }
+        return $sources;
     }
 
 }

@@ -133,7 +133,7 @@ class Glint_AI_SEO_Metabox
                         $key = isset($rule['select_meta']) ? $rule['select_meta'] : '';
                     }
 
-                    if (empty($key))
+                    if ($key === '')
                         continue;
 
                     $val = '';
@@ -143,6 +143,38 @@ class Glint_AI_SEO_Metabox
                     else if ($source === 'core' && in_array($key, array('post_title', 'post_excerpt', 'post_name', 'post_date', 'post_author'))) {
                         $p = get_post($post_id);
                         $val = isset($p->$key) ? $p->$key : '';
+                    }
+                    else if ($source === 'woo' && strpos($key, 'pa_') === 0) {
+                        // WooCommerce product attribute taxonomy — get term labels
+                        $terms = wp_get_post_terms($post_id, $key, array('fields' => 'names'));
+                        if (!is_wp_error($terms) && !empty($terms)) {
+                            $val = implode(', ', $terms);
+                        }
+                    }
+                    else if (taxonomy_exists($source)) {
+                        // Taxonomy source — get term names
+                        $parent_id = intval($key);
+                        if ($parent_id === 0) {
+                            // Root: get all terms assigned to this post
+                            $terms = wp_get_post_terms($post_id, $source, array('fields' => 'names'));
+                            if (!is_wp_error($terms) && !empty($terms)) {
+                                $val = implode(', ', $terms);
+                            }
+                        } else {
+                            // Specific parent: get only child terms of this parent
+                            $all_terms = wp_get_post_terms($post_id, $source);
+                            $child_names = array();
+                            if (!is_wp_error($all_terms)) {
+                                foreach ($all_terms as $term) {
+                                    if ($term->parent == $parent_id) {
+                                        $child_names[] = $term->name;
+                                    }
+                                }
+                            }
+                            if (!empty($child_names)) {
+                                $val = implode(', ', $child_names);
+                            }
+                        }
                     }
                     else {
                         $val = get_post_meta($post_id, $key, true);
@@ -220,7 +252,7 @@ class Glint_AI_SEO_Metabox
                         $key = isset($rule['select_meta']) ? $rule['select_meta'] : '';
                     }
 
-                    if (empty($key))
+                    if ($key === '')
                         continue;
 
                     $val = '';
@@ -229,6 +261,36 @@ class Glint_AI_SEO_Metabox
                     } else if ($source === 'core' && in_array($key, array('post_title', 'post_excerpt', 'post_name', 'post_date', 'post_author'))) {
                         $p = get_post($post_id);
                         $val = isset($p->$key) ? $p->$key : '';
+                    } else if ($source === 'woo' && strpos($key, 'pa_') === 0) {
+                        // WooCommerce product attribute taxonomy — get term labels
+                        $terms = wp_get_post_terms($post_id, $key, array('fields' => 'names'));
+                        if (!is_wp_error($terms) && !empty($terms)) {
+                            $val = implode(', ', $terms);
+                        }
+                    } else if (taxonomy_exists($source)) {
+                        // Taxonomy source — get term names
+                        $parent_id = intval($key);
+                        if ($parent_id === 0) {
+                            // Root: get all terms assigned to this post
+                            $terms = wp_get_post_terms($post_id, $source, array('fields' => 'names'));
+                            if (!is_wp_error($terms) && !empty($terms)) {
+                                $val = implode(', ', $terms);
+                            }
+                        } else {
+                            // Specific parent: get only child terms of this parent
+                            $all_terms = wp_get_post_terms($post_id, $source);
+                            $child_names = array();
+                            if (!is_wp_error($all_terms)) {
+                                foreach ($all_terms as $term) {
+                                    if ($term->parent == $parent_id) {
+                                        $child_names[] = $term->name;
+                                    }
+                                }
+                            }
+                            if (!empty($child_names)) {
+                                $val = implode(', ', $child_names);
+                            }
+                        }
                     } else {
                         $val = get_post_meta($post_id, $key, true);
                     }
