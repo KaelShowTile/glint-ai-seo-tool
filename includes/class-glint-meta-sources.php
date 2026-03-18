@@ -11,7 +11,8 @@ class Glint_AI_SEO_Meta_Sources
             'post_name' => 'Post Slug',
             'post_date' => 'Post Date',
             'post_author' => 'Author ID',
-            '_thumbnail_id' => 'Featured Image ID (Thumbnail)'
+            '_thumbnail_id' => 'Featured Image ID (Thumbnail)',
+            'permalink' => 'Permalink'
         );
     }
 

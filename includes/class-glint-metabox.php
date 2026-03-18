@@ -140,9 +140,13 @@ class Glint_AI_SEO_Metabox
                     if ($source === 'acf' && function_exists('get_field')) {
                         $val = get_field($key, $post_id);
                     }
-                    else if ($source === 'core' && in_array($key, array('post_title', 'post_excerpt', 'post_name', 'post_date', 'post_author'))) {
-                        $p = get_post($post_id);
-                        $val = isset($p->$key) ? $p->$key : '';
+                    else if ($source === 'core' && in_array($key, array('post_title', 'post_excerpt', 'post_name', 'post_date', 'post_author', 'permalink'))) {
+                        if ($key === 'permalink') {
+                            $val = get_permalink($post_id);
+                        } else {
+                            $p = get_post($post_id);
+                            $val = isset($p->$key) ? $p->$key : '';
+                        }
                     }
                     else if ($source === 'woo' && strpos($key, 'pa_') === 0) {
                         // WooCommerce product attribute taxonomy — get term labels
@@ -232,7 +236,7 @@ class Glint_AI_SEO_Metabox
         $post_type = get_post_type($post_id);
         $prompt_templates = Glint_AI_SEO_Settings::get_setting('content_prompts', array());
 
-        $default_prompt = "Write a blog post about [post_title]. Use the following metadata for context:\n[metadata]\n\nMake it engaging and informative. The content should be structured with headings and paragraphs.";
+        $default_prompt = "Write a blog post about [post_title]. Use the following metadata for context:\n[metadata]\n\nIf a permalink is provided in the metadata, you can use it to get more data from the post frontend.\n\nMake it engaging and informative. The content should be structured with headings and paragraphs.";
         $prompt_template = isset($prompt_templates[$post_type]) && !empty($prompt_templates[$post_type]) ? $prompt_templates[$post_type] : $default_prompt;
         
         $content_meta_data = array();
@@ -258,9 +262,13 @@ class Glint_AI_SEO_Metabox
                     $val = '';
                     if ($source === 'acf' && function_exists('get_field')) {
                         $val = get_field($key, $post_id);
-                    } else if ($source === 'core' && in_array($key, array('post_title', 'post_excerpt', 'post_name', 'post_date', 'post_author'))) {
-                        $p = get_post($post_id);
-                        $val = isset($p->$key) ? $p->$key : '';
+                    } else if ($source === 'core' && in_array($key, array('post_title', 'post_excerpt', 'post_name', 'post_date', 'post_author', 'permalink'))) {
+                        if ($key === 'permalink') {
+                            $val = get_permalink($post_id);
+                        } else {
+                            $p = get_post($post_id);
+                            $val = isset($p->$key) ? $p->$key : '';
+                        }
                     } else if ($source === 'woo' && strpos($key, 'pa_') === 0) {
                         // WooCommerce product attribute taxonomy — get term labels
                         $terms = wp_get_post_terms($post_id, $key, array('fields' => 'names'));

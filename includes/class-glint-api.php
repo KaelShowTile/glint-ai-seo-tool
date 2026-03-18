@@ -16,6 +16,7 @@ class Glint_AI_SEO_API
         $prompt .= "1. SEO Title must be under 60 characters, compelling, and include primary keywords.\n";
         $prompt .= "2. SEO Description must be under 160 characters, encourage click-through, and summarize the page perfectly. Avoid 'salesy' jargon\n";
         $prompt .= "3. The Keyword Merge: You must merge the primary [Color] + [Special Feature/Tech] + [Material] into a single descriptive phrase (e.g., 'emerald polished porcelain' or 'grey backlit porcelain slab').\n";
+        $prompt .= "4. If a 'permalink' or URL is provided, you can use it to gather more data from the post frontend if needed.\n";
         $prompt .= "Adaptive Tone:\n";
         $prompt .= "If the product is large (e.g., 1200x2800), emphasize seamlessness and scale.\n";
         $prompt .= "If the product is backlit, emphasize translucency and atmosphere.\n";

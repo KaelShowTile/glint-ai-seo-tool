@@ -227,7 +227,7 @@ class Glint_AI_SEO_Settings
                                 <div class="glint-field-section glint-prompt-section">
 									<h4>Post Content Prompt</h4>
 									<?php
-                                    $default_prompt = "Write a blog post about [post_title]. Use the following metadata for context:\n[metadata]\n\nMake it engaging and informative. The content should be structured with headings and paragraphs.";
+                                    $default_prompt = "Write a blog post about [post_title]. Use the following metadata for context:\n[metadata]\n\nIf a permalink is provided in the metadata, you can use it to get more data from the post frontend.\n\nMake it engaging and informative. The content should be structured with headings and paragraphs.";
                                     $current_prompt = isset($content_prompts[$pt]) && !empty($content_prompts[$pt]) ? $content_prompts[$pt] : $default_prompt;
                                     ?>
 									<textarea name="glint_content_prompts[<?php echo esc_attr($pt); ?>]" id="glint_content_prompt_<?php echo esc_attr($pt); ?>" rows="6" class="large-text"><?php echo esc_textarea($current_prompt); ?></textarea>
