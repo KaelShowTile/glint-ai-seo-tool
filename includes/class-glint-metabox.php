@@ -168,12 +168,13 @@ class Glint_AI_SEO_Metabox
                             }
                         }
                         else {
-                            // Specific parent: get only child terms of this parent
+                            // Specific parent: get only child/descendant terms of this parent
                             $all_terms = wp_get_post_terms($post_id, $source);
                             $child_names = array();
                             if (!is_wp_error($all_terms)) {
                                 foreach ($all_terms as $term) {
-                                    if ($term->parent == $parent_id) {
+                                    // Include if it IS the term or is a descendant
+                                    if ($term->term_id == $parent_id || term_is_ancestor_of($parent_id, $term->term_id, $source)) {
                                         $child_names[] = $term->name;
                                     }
                                 }
@@ -204,11 +205,16 @@ class Glint_AI_SEO_Metabox
         }
 
         // Use the content fetched from the JS editor context (since the post might not be saved yet)
-        // If empty, fallback to the database post content just in case
-        if (empty(trim($content))) {
+        if ($content === '') {
             $post = get_post($post_id);
             $content = $post ? $post->post_content : '';
         }
+
+        // DEBUG LOGGING
+        error_log("GLINT SEO DEBUG: Extracting data for Post ID $post_id");
+        error_log("GLINT SEO DEBUG: Title Meta: " . print_r($title_meta_data, true));
+        error_log("GLINT SEO DEBUG: Desc Meta: " . print_r($desc_meta_data, true));
+        error_log("GLINT SEO DEBUG: Content Length: " . strlen($content));
 
         $ai_result = Glint_AI_SEO_API::generate_seo($content, $title_meta_data, $desc_meta_data);
 
@@ -326,6 +332,10 @@ class Glint_AI_SEO_Metabox
             $content_rules = isset($rules[$post_type]['content']) ? $rules[$post_type]['content'] : array();
             $content_meta_data = $extract_meta($content_rules);
         }
+
+        // DEBUG: Log for content generation
+        error_log("GLINT CONTENT DEBUG: Post ID: $post_id");
+        error_log("GLINT CONTENT DEBUG: Meta Data: " . print_r($content_meta_data, true));
 
         $ai_result = Glint_AI_SEO_API::generate_content($post_title, $content_meta_data, $prompt_template);
 

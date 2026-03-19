@@ -11,12 +11,13 @@ class Glint_AI_SEO_API
         }
 
         // Prepare prompt
-        $prompt = "You are an expert SEO specialist. Your task is to generate a highly optimized SEO Title and SEO Description for a web page based on the content and metadata provided below.\n\n";
+        $prompt = "You are an expert SEO specialist. Your task is to generate a highly optimized SEO Title and SEO Description for a web page based on the content and metadata provided below. If the main 'CONTENT' section is missing or very short, rely primarily on the provided METADATA to fulfill the request.\n\n";
         $prompt .= "Guidelines:\n";
         $prompt .= "1. SEO Title must be under 60 characters, compelling, and include primary keywords.\n";
         $prompt .= "2. SEO Description must be under 160 characters, encourage click-through, and summarize the page perfectly. Avoid 'salesy' jargon\n";
-        $prompt .= "3. The Keyword Merge: You must merge the primary [Color] + [Special Feature/Tech] + [Material] into a single descriptive phrase (e.g., 'emerald polished porcelain' or 'grey backlit porcelain slab').\n";
-        $prompt .= "4. If a 'permalink' or URL is provided, you can use it to gather more data from the post frontend if needed.\n";
+        $prompt .= "3. The Keyword Merge: Identify key attributes in the provided metadata (such as Color, Material, Dimensions, or Special Features) and merge them logically into the Title and Description to create a descriptive, high-value phrase.\n";
+        $prompt .= "4. If a 'permalink' or URL is provided, you can use it to gather more context if needed.\n";
+        $prompt .= "5. Prioritize the provided Metadata for specific technical details (Color, SKU, Size, etc.) to ensure accuracy.\n";
         $prompt .= "Adaptive Tone:\n";
         $prompt .= "If the product is large (e.g., 1200x2800), emphasize seamlessness and scale.\n";
         $prompt .= "If the product is backlit, emphasize translucency and atmosphere.\n";
@@ -49,7 +50,7 @@ class Glint_AI_SEO_API
         }
         $prompt .= $content_stripped;
 
-        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $api_key;
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key=" . $api_key;
 
         $body = array(
             "contents" => array(
