@@ -165,6 +165,9 @@ class Glint_AI_SEO_API
         $prompt = str_replace('[post_title]', $post_title, $prompt_template);
         $prompt = str_replace('[metadata]', $metadata_string, $prompt);
 
+        // Inject a strict instruction to prevent hallucination
+        $prompt .= "\n\nCRITICAL INSTRUCTION: You must base all factual product specifications, features, and technical details STRICTLY on the provided metadata above. Do NOT invent, hallucinate, or make up any sizes, finishes, materials, colors, or features that are not explicitly stated in the metadata.";
+
         $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $api_key;
 
         $body = array(
