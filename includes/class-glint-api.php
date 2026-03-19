@@ -163,7 +163,11 @@ class Glint_AI_SEO_API
 
         // Replace placeholders in the prompt template
         $prompt = str_replace('[post_title]', $post_title, $prompt_template);
-        $prompt = str_replace('[metadata]', $metadata_string, $prompt);
+        if (strpos($prompt_template, '[metadata]') === false) {
+            $prompt .= "\n\n--- METADATA ---\n" . $metadata_string;
+        } else {
+            $prompt = str_replace('[metadata]', $metadata_string, $prompt);
+        }
 
         // Inject a strict instruction to prevent hallucination
         $prompt .= "\n\nCRITICAL INSTRUCTION: You must base all factual product specifications, features, and technical details STRICTLY on the provided metadata above. Do NOT invent, hallucinate, or make up any sizes, finishes, materials, colors, or features that are not explicitly stated in the metadata.";
