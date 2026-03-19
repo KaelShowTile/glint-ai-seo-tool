@@ -155,7 +155,8 @@ class Glint_AI_SEO_API
             foreach ($meta_data as $key => $val) {
                 $metadata_string .= sanitize_text_field($key) . ": " . wp_strip_all_tags(is_array($val) ? wp_json_encode($val) : $val) . "\n";
             }
-        } else {
+        }
+        else {
             $metadata_string = "No metadata provided.";
         }
 
@@ -163,20 +164,20 @@ class Glint_AI_SEO_API
         $prompt = str_replace('[post_title]', $post_title, $prompt_template);
         $prompt = str_replace('[metadata]', $metadata_string, $prompt);
 
-        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $api_key;
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . $api_key;
 
         $body = array(
             "contents" => array(
-                array(
+                    array(
                     "parts" => array(
-                        array("text" => $prompt)
+                            array("text" => $prompt)
                     )
                 )
             ),
             "generationConfig" => array(
                 "temperature" => 0.8,
                 "maxOutputTokens" => 8192,
-                // "responseMimeType" => "text/plain" // We expect markdown/html back
+                "responseMimeType" => "text/plain"
             )
         );
 

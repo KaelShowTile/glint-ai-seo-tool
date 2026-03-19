@@ -97,6 +97,7 @@ class Glint_AI_SEO_Metabox
 
     public function ajax_generate_seo()
     {
+        set_time_limit(300);
         check_ajax_referer('glint_generate_seo_nonce', 'nonce');
 
         if (!current_user_can('edit_posts')) {
@@ -218,6 +219,7 @@ class Glint_AI_SEO_Metabox
 
     public function ajax_generate_content()
     {
+        set_time_limit(300);
         check_ajax_referer('glint_generate_content_nonce', 'nonce');
 
         if (!current_user_can('edit_posts')) {
