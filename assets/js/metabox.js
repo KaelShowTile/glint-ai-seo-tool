@@ -9,6 +9,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         return { source: 'default', slug: '' };
     }
+    
+    function isBlockEditor() {
+        return typeof wp !== 'undefined' && wp.data && wp.data.select('core/editor') && typeof wp.data.select('core/editor').isBlockBasedPost === 'function' && wp.data.select('core/editor').isBlockBasedPost();
+    }
 
     // Helper: Get Content (Handles Default Editor, Gutenberg, ACF, Custom Fields)
     function getPostContent() {
@@ -33,10 +37,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (el) return el.value;
         }
 
-        // Default Handling
         // Check for Gutenberg
-        if (typeof wp !== 'undefined' && wp.data && wp.data.select('core/editor')) {
-            // Check if Gutenberg is actually active/initialized
+        if (isBlockEditor()) {
             const editor = wp.data.select('core/editor');
             if (editor && typeof editor.getEditedPostContent === 'function') {
                 return editor.getEditedPostContent();
@@ -130,8 +132,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     seoBtn.disabled = false;
                     seoBtn.innerHTML = originalBtnHtml;
                     feedback.style.borderLeftColor = '#dc3232';
-                    feedback.innerText = '❌ Network Error: Could not connect to the server.';
-                    console.error(err);
+                    feedback.innerText = '❌ Error: ' + (err.message || 'Could not connect to the server.');
+                    console.error('Glint SEO Error:', err);
                 });
 
         });
@@ -208,19 +210,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         // 2. Default Insertion (if not custom or custom failed)
                         if (!inserted) {
-                             // Gutenberg
-                             if (typeof wp !== 'undefined' && wp.data && wp.data.dispatch('core/editor')) {
-                                const blocks = wp.blocks.rawHandler({ HTML: generatedContent });
-                                wp.data.dispatch('core/editor').resetEditorBlocks(blocks);
+                            // Gutenberg / Block Editor
+                            if (isBlockEditor() && typeof wp.blocks !== 'undefined' && typeof wp.blocks.rawHandler === 'function') {
+                                try {
+                                    const blocks = wp.blocks.rawHandler({ HTML: generatedContent });
+                                    wp.data.dispatch('core/editor').resetEditorBlocks(blocks);
+                                    inserted = true;
+                                } catch (blockErr) {
+                                    console.error('Glint Block Parser Error:', blockErr);
+                                    // Fallback if block parser fails
+                                }
                             }
-                            // Classic TinyMCE
-                            else if (typeof tinyMCE !== 'undefined' && tinyMCE.get('content')) {
-                                tinyMCE.get('content').setContent(generatedContent);
-                            }
-                            // Textarea
-                            else {
-                                const contentEle = document.getElementById('content');
-                                if (contentEle) contentEle.value = generatedContent;
+
+                            if (!inserted) {
+                                // Classic TinyMCE
+                                if (typeof tinyMCE !== 'undefined' && tinyMCE.get('content')) {
+                                    tinyMCE.get('content').setContent(generatedContent);
+                                    inserted = true;
+                                }
+                                // Textarea
+                                else {
+                                    const contentEle = document.getElementById('content');
+                                    if (contentEle) {
+                                        contentEle.value = generatedContent;
+                                        inserted = true;
+                                    }
+                                }
                             }
                         }
 
@@ -236,8 +251,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     contentBtn.disabled = false;
                     contentBtn.innerHTML = originalBtnHtml;
                     contentFeedback.style.borderLeftColor = '#dc3232';
-                    contentFeedback.innerText = '❌ Network Error: Could not connect to the server.';
-                    console.error(err);
+                    contentFeedback.innerText = '❌ Error: ' + (err.message || 'Could not connect to the server.');
+                    console.error('Glint Content Error:', err);
                 });
 
         });
