@@ -221,7 +221,7 @@ class Glint_AI_SEO_Metabox
 
     public function ajax_generate_content()
     {
-        set_time_limit(600); //limitation of generating content
+        set_time_limit(2000); //limitation of generating content
         check_ajax_referer('glint_generate_content_nonce', 'nonce');
 
         if (!current_user_can('edit_posts')) {
