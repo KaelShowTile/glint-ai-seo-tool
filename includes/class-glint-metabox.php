@@ -212,6 +212,8 @@ class Glint_AI_SEO_Metabox
 
         // DEBUG LOGGING
         error_log("GLINT SEO DEBUG: Extracting data for Post ID $post_id");
+        error_log("GLINT SEO DEBUG: Current Post Type: $post_type");
+        error_log("GLINT SEO DEBUG: Available Rule Keys: " . implode(', ', array_keys($rules)));
         error_log("GLINT SEO DEBUG: Title Meta: " . print_r($title_meta_data, true));
         error_log("GLINT SEO DEBUG: Desc Meta: " . print_r($desc_meta_data, true));
         error_log("GLINT SEO DEBUG: Content Length: " . strlen($content));
