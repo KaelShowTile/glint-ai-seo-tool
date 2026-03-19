@@ -144,7 +144,8 @@ class Glint_AI_SEO_Metabox
                     else if ($source === 'core' && in_array($key, array('post_title', 'post_excerpt', 'post_name', 'post_date', 'post_author', 'permalink'))) {
                         if ($key === 'permalink') {
                             $val = get_permalink($post_id);
-                        } else {
+                        }
+                        else {
                             $p = get_post($post_id);
                             $val = isset($p->$key) ? $p->$key : '';
                         }
@@ -165,7 +166,8 @@ class Glint_AI_SEO_Metabox
                             if (!is_wp_error($terms) && !empty($terms)) {
                                 $val = implode(', ', $terms);
                             }
-                        } else {
+                        }
+                        else {
                             // Specific parent: get only child terms of this parent
                             $all_terms = wp_get_post_terms($post_id, $source);
                             $child_names = array();
@@ -219,7 +221,7 @@ class Glint_AI_SEO_Metabox
 
     public function ajax_generate_content()
     {
-        set_time_limit(300);
+        set_time_limit(600); //limitation of generating content
         check_ajax_referer('glint_generate_content_nonce', 'nonce');
 
         if (!current_user_can('edit_posts')) {
@@ -240,7 +242,7 @@ class Glint_AI_SEO_Metabox
 
         $default_prompt = "Write a blog post about [post_title]. Use the following metadata for context:\n[metadata]\n\nIf a permalink is provided in the metadata, you can use it to get more data from the post frontend.\n\nMake it engaging and informative. The content should be structured with headings and paragraphs.";
         $prompt_template = isset($prompt_templates[$post_type]) && !empty($prompt_templates[$post_type]) ? $prompt_templates[$post_type] : $default_prompt;
-        
+
         $content_meta_data = array();
 
         // Helper to extract values based on rule structure
@@ -254,7 +256,8 @@ class Glint_AI_SEO_Metabox
 
                     if ($source === 'custom') {
                         $key = isset($rule['meta_slug']) ? $rule['meta_slug'] : '';
-                    } else {
+                    }
+                    else {
                         $key = isset($rule['select_meta']) ? $rule['select_meta'] : '';
                     }
 
@@ -264,20 +267,24 @@ class Glint_AI_SEO_Metabox
                     $val = '';
                     if ($source === 'acf' && function_exists('get_field')) {
                         $val = get_field($key, $post_id);
-                    } else if ($source === 'core' && in_array($key, array('post_title', 'post_excerpt', 'post_name', 'post_date', 'post_author', 'permalink'))) {
+                    }
+                    else if ($source === 'core' && in_array($key, array('post_title', 'post_excerpt', 'post_name', 'post_date', 'post_author', 'permalink'))) {
                         if ($key === 'permalink') {
                             $val = get_permalink($post_id);
-                        } else {
+                        }
+                        else {
                             $p = get_post($post_id);
                             $val = isset($p->$key) ? $p->$key : '';
                         }
-                    } else if ($source === 'woo' && strpos($key, 'pa_') === 0) {
+                    }
+                    else if ($source === 'woo' && strpos($key, 'pa_') === 0) {
                         // WooCommerce product attribute taxonomy — get term labels
                         $terms = wp_get_post_terms($post_id, $key, array('fields' => 'names'));
                         if (!is_wp_error($terms) && !empty($terms)) {
                             $val = implode(', ', $terms);
                         }
-                    } else if (taxonomy_exists($source)) {
+                    }
+                    else if (taxonomy_exists($source)) {
                         // Taxonomy source — get term names
                         $parent_id = intval($key);
                         if ($parent_id === 0) {
@@ -286,7 +293,8 @@ class Glint_AI_SEO_Metabox
                             if (!is_wp_error($terms) && !empty($terms)) {
                                 $val = implode(', ', $terms);
                             }
-                        } else {
+                        }
+                        else {
                             // Specific parent: get only child terms of this parent
                             $all_terms = wp_get_post_terms($post_id, $source);
                             $child_names = array();
@@ -301,7 +309,8 @@ class Glint_AI_SEO_Metabox
                                 $val = implode(', ', $child_names);
                             }
                         }
-                    } else {
+                    }
+                    else {
                         $val = get_post_meta($post_id, $key, true);
                     }
 
