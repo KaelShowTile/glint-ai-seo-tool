@@ -199,13 +199,16 @@ class Glint_AI_SEO_Metabox
         if ($post_type && isset($rules[$post_type])) {
             $title_rules = isset($rules[$post_type]['title']) ? $rules[$post_type]['title'] : array();
             $desc_rules = isset($rules[$post_type]['description']) ? $rules[$post_type]['description'] : array();
+            $content_rules = isset($rules[$post_type]['content']) ? $rules[$post_type]['content'] : array();
 
-            // UX Improvement: Fallback to Content Rules if SEO specific rules are empty
-            if (empty($title_rules) && isset($rules[$post_type]['content'])) {
-                $title_rules = $rules[$post_type]['content'];
+            // Strict UX Fallback: If title or desc rules are empty arrays, force them to use content rules
+            if (!is_array($title_rules) || count($title_rules) === 0) {
+                $title_rules = $content_rules;
+                error_log("GLINT SEO DEBUG: Fallback triggered for Title Rules");
             }
-            if (empty($desc_rules) && isset($rules[$post_type]['content'])) {
-                $desc_rules = $rules[$post_type]['content'];
+            if (!is_array($desc_rules) || count($desc_rules) === 0) {
+                $desc_rules = $content_rules;
+                error_log("GLINT SEO DEBUG: Fallback triggered for Desc Rules");
             }
 
             $title_meta_data = $extract_meta($title_rules);
