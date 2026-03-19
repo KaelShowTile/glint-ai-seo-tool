@@ -200,6 +200,14 @@ class Glint_AI_SEO_Metabox
             $title_rules = isset($rules[$post_type]['title']) ? $rules[$post_type]['title'] : array();
             $desc_rules = isset($rules[$post_type]['description']) ? $rules[$post_type]['description'] : array();
 
+            // UX Improvement: Fallback to Content Rules if SEO specific rules are empty
+            if (empty($title_rules) && isset($rules[$post_type]['content'])) {
+                $title_rules = $rules[$post_type]['content'];
+            }
+            if (empty($desc_rules) && isset($rules[$post_type]['content'])) {
+                $desc_rules = $rules[$post_type]['content'];
+            }
+
             $title_meta_data = $extract_meta($title_rules);
             $desc_meta_data = $extract_meta($desc_rules);
         }
