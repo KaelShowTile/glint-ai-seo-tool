@@ -50,7 +50,7 @@ class Glint_AI_SEO_API
         }
         $prompt .= $content_stripped;
 
-        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash:generateContent?key=" . $api_key;
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $api_key;
 
         $body = array(
             "contents" => array(
